@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Déborah & Guilherme — 06.09.2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:  #ecdcc6;
+      --cream2: #f7f0e6;
+      --wine:   #671f22;
+      --wine2:  #4a1518;
+      --gold:   #b8966e;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--cream2);
+      color: var(--wine);
+      font-family: 'Lato', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ══════════════════════════════
+       ENVELOPE INTRO
+    ══════════════════════════════ */
+    #envelope-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--wine2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      cursor: pointer;
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    #envelope-screen.hide {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1.06);
+      visibility: hidden;
+    }
+
+    /* logo pulse on envelope screen */
+    .env-logo-wrap {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      margin-bottom: 40px;
+    }
+    .env-logo-wrap::before,
+    .env-logo-wrap::after {
+      content: '';
+      position: absolute;
+      inset: -12px;
+      border-radius: 50%;
+      border: 1px solid rgba(184,150,110,.35);
+      animation: ring 3s ease-in-out infinite;
+    }
+    .env-logo-wrap::after {
+      inset: -24px;
+      border-color: rgba(184,150,110,.15);
+      animation-delay: 1s;
+    }
+    @keyframes ring { 0%,100%{opacity:.4;transform:scale(1)} 50%{opacity:1;transform:scale(1.04)} }
+
+    /* SVG logo as inline object — cropped to seal area */
+    .logo-svg {
+      width: 170px;
+      height: 170px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: block;
+    }
+    .logo-svg img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    .env-hint {
+      color: var(--cream);
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: .6;
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:.3} 50%{opacity:.8} }
+
+    /* ══════════════════════════════
+       SVG HELPERS
+    ══════════════════════════════ */
+
+    /* Full logo seal: crop viewBox to the circular mark (approx 70 110 70 70) */
+    .svg-logo {
+      display: block;
+      /* rendered via <object> referencing Logo.svg, viewBox override via CSS clip trick below */
+    }
+
+    /* We use inline SVG with the Logo.svg embedded as image via foreignObject is not reliable
+       Instead we use <img> with CSS object-viewport trick, or an SVG <image> element with viewBox crop */
+
+    /* Floral strip: shows flowers extending out of the circle — wider crop */
+    .floral-strip {
+      width: 100%;
+      max-width: 420px;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* ══════════════════════════════
+       HERO
+    ══════════════════════════════ */
+    .hero {
+      background: var(--wine2);
+      min-height: 100svh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 72px 24px 64px;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .hero-top    { display: flex; flex-direction: column; align-items: center; }
+    .hero-middle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .hero-bottom { display: flex; flex-direction: column; align-items: center; }
+
+    /* logo transparente posicionado dentro do bloco dos nomes */
+    .hero-bg-logo {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(640px, 140vw);
+      height: min(640px, 140vw);
+      opacity: .1;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .hero-middle .names { position: relative; z-index: 1; }
+
+
+    .eyebrow {
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 28px;
+      position: relative;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+    }
+
+    /* Logo seal above names */
+    .hero-seal {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto 28px;
+      position: relative;
+      box-shadow: 0 0 0 1px rgba(184,150,110,.4), 0 0 0 10px rgba(184,150,110,.06);
+    }
+    .hero-seal img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .names {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(50px, 13vw, 86px);
+      font-weight: 300;
+      color: var(--cream);
+      line-height: 1;
+      position: relative;
+    }
+    .names .amp {
+      font-style: italic;
+      color: var(--gold);
+      font-size: 0.68em;
+      display: block;
+      margin: 6px 0;
+    }
+
+    .divider-ornament {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 28px auto;
+      width: fit-content;
+      position: relative;
+    }
+    .divider-ornament span {
+      width: 50px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold));
+    }
+    .divider-ornament span:last-child {
+      background: linear-gradient(to left, transparent, var(--gold));
+    }
+    .divider-ornament .diamond {
+      width: 5px;
+      height: 5px;
+      background: var(--gold);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
+    .date-hero {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(15px, 4vw, 20px);
+      color: var(--cream);
+      letter-spacing: 7px;
+      font-weight: 300;
+      position: relative;
+    }
+
+    /* Floral footer of hero */
+    .hero-floral {
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(600px, 130vw);
+      opacity: .22;
+      pointer-events: none;
+    }
+
+    .scroll-cue {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--cream);
+      opacity: .35;
+      font-size: 20px;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 60%{transform:translateX(-50%) translateY(7px)} }
+
+    /* ══════════════════════════════
+       MESSAGE
+    ══════════════════════════════ */
+    .message-wrap {
+      background: var(--wine);
+      padding: 80px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .message-wrap .inner { max-width: 520px; margin: 0 auto; position: relative; z-index: 1; }
+    /* faded flowers top-right */
+    .msg-floral-tl {
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 180px;
+      height: 180px;
+      opacity: .08;
+      pointer-events: none;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .msg-floral-br {
+      position: absolute;
+      bottom: -60px; right: -60px;
+      width: 180px;
+      height: 180px;
+      opacity: .08;
+      pointer-events: none;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .section-label {
+      font-size: 13px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+    }
+    .section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(26px, 6.5vw, 38px);
+      font-weight: 300;
+      line-height: 1.25;
+      margin-bottom: 24px;
+    }
+    .section-body { font-size: 15px; line-height: 1.9; }
+    .message-wrap .section-title { color: var(--cream); font-style: italic; }
+    .message-wrap .section-body  { color: #d4bba8; }
+    .quote { font-family: 'Cormorant Garamond', serif; font-size: 72px; line-height: .5; color: var(--gold); opacity: .3; display: block; margin-bottom: 12px; }
+
+    /* ══════════════════════════════
+       DETAILS
+    ══════════════════════════════ */
+    .details-wrap {
+      background: var(--cream);
+      padding: 80px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .details-wrap .inner { max-width: 540px; margin: 0 auto; text-align: center; position: relative; z-index: 1; }
+    /* logo watermark */
+    .details-logo-bg {
+      position: absolute;
+      width: 340px;
+      height: 340px;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: .05;
+      pointer-events: none;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .details-logo-bg img { width: 100%; height: 100%; object-fit: cover; }
+
+    .detail-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 36px;
+    }
+    .card {
+      background: var(--cream2);
+      border: 1px solid rgba(103,31,34,.12);
+      border-radius: 4px;
+      padding: 28px 16px;
+      text-align: center;
+    }
+    .card-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+    .card-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; font-family: 'Cormorant Garamond', serif; font-style: italic; }
+    .card-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 400;
+      color: var(--wine);
+      line-height: 1.45;
+    }
+    .card.full { grid-column: 1 / -1; }
+
+    /* ══════════════════════════════
+       FLORAL DIVIDER
+    ══════════════════════════════ */
+    .floral-divider {
+      background: var(--cream2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 0;
+      overflow: hidden;
+    }
+    .floral-divider svg-crop {
+      display: block;
+    }
+
+    /* ══════════════════════════════
+       COUNTDOWN
+    ══════════════════════════════ */
+    .countdown-wrap {
+      background: var(--wine2);
+      padding: 72px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .countdown-wrap .countdown-label { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 36px; font-family: 'Cormorant Garamond', serif; font-style: italic; }
+    .countdown-grid { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .count-unit {
+      background: rgba(236,220,198,.07);
+      border: 1px solid rgba(184,150,110,.25);
+      border-radius: 4px;
+      padding: 22px 18px 14px;
+      min-width: 72px;
+    }
+    .count-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 46px;
+      color: var(--cream);
+      line-height: 1;
+      display: block;
+      font-weight: 300;
+    }
+    .count-word { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-top: 8px; display: block; }
+
+    /* ══════════════════════════════
+       MAP
+    ══════════════════════════════ */
+    .map-section {
+      background: var(--cream2);
+      padding: 80px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .map-section .inner { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
+    .map-section .section-title { color: var(--wine); }
+    .map-section .section-body  { color: #5a3a3c; font-size: 15px; line-height: 1.8; }
+    .map-floral {
+      position: absolute;
+      right: -40px; bottom: -20px;
+      width: 220px;
+      opacity: .08;
+      pointer-events: none;
+    }
+    .map-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 28px;
+      padding: 14px 32px;
+      background: var(--wine);
+      color: var(--cream);
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: background .2s, transform .2s;
+    }
+    .map-btn:hover { background: var(--wine2); transform: translateY(-1px); }
+
+    /* ══════════════════════════════
+       RSVP
+    ══════════════════════════════ */
+    .rsvp-wrap {
+      background: var(--wine);
+      padding: 88px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .rsvp-wrap .inner { max-width: 480px; margin: 0 auto; position: relative; z-index: 1; }
+    .rsvp-wrap .section-title { color: var(--cream); }
+    .rsvp-wrap .section-body  { color: #d4bba8; font-size: 14px; margin-bottom: 36px; line-height: 1.8; }
+
+    /* Center logo above RSVP */
+    .rsvp-logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto 32px;
+      border: 1px solid rgba(184,150,110,.4);
+    }
+    .rsvp-logo img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* corner florals */
+    .rsvp-floral-tl {
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 180px;
+      height: 180px;
+      opacity: .09;
+      pointer-events: none;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+    .rsvp-floral-br {
+      position: absolute;
+      bottom: -60px; right: -60px;
+      width: 180px;
+      height: 180px;
+      opacity: .09;
+      pointer-events: none;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .rsvp-btn {
+      display: inline-block;
+      padding: 18px 52px;
+      background: var(--cream);
+      color: var(--wine);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: transform .2s, box-shadow .2s;
+      box-shadow: 0 4px 24px rgba(0,0,0,.28);
+    }
+    .rsvp-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.34); }
+
+    /* ══════════════════════════════
+       FOOTER
+    ══════════════════════════════ */
+    footer {
+      background: var(--wine2);
+      padding: 40px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .footer-seal {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto 16px;
+      opacity: .55;
+    }
+    .footer-seal img { width: 100%; height: 100%; object-fit: cover; }
+    footer p { color: rgba(236,220,198,.35); font-size: 10px; letter-spacing: 4px; text-transform: uppercase; }
+
+    /* ══════════════════════════════
+       SCROLL REVEAL
+    ══════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .85s ease, transform .85s ease;
+    }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ══════════════════════════════
+       SVG CROP HELPER
+       We use an SVG <image> element with a custom viewBox
+       to "zoom into" different regions of Logo.svg
+    ══════════════════════════════ */
+
+    /* Inline crop SVG */
+    .crop-svg { display: block; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════
+     ENVELOPE INTRO
+════════════════════════════════════════════ -->
+<div id="envelope-screen" onclick="openEnvelope()">
+  <div class="env-logo-wrap">
+    <!-- Logo como selo -->
+    <svg class="crop-svg" style="width:170px;height:170px;border-radius:50%;"
+         viewBox="72 114 66 66"
+         xmlns="http://www.w3.org/2000/svg"
+         xmlns:xlink="http://www.w3.org/1999/xlink">
+      <image href="Logo.svg" x="0" y="0" width="210" height="297"/>
+    </svg>
+  </div>
+  <p class="env-hint">Toque para abrir</p>
+</div>
+
+<!-- ════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════ -->
+<div id="main" style="opacity:0;transition:opacity 1s ease .3s;">
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <!-- topo -->
+    <div class="hero-top">
+      <p class="eyebrow">— Você está convidado —</p>
+    </div>
+
+    <!-- centro: nomes sobre o logo transparente -->
+    <div class="hero-middle">
+      <svg class="hero-bg-logo" viewBox="72 114 66 66"
+           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <image href="Logo.svg" x="0" y="0" width="210" height="297"/>
+      </svg>
+      <h1 class="names">
+        Déborah
+        <span class="amp">&</span>
+        Guilherme
+      </h1>
+    </div>
+
+    <!-- base: separador e data -->
+    <div class="hero-bottom">
+      <div class="divider-ornament">
+        <span></span>
+        <div class="diamond"></div>
+        <div class="diamond" style="opacity:.5;transform:rotate(45deg) scale(.6)"></div>
+        <div class="diamond"></div>
+        <span></span>
+      </div>
+      <p class="date-hero">06 · 09 · 2026</p>
+    </div>
+
+    <div class="scroll-cue">↓</div>
+  </section>
+
+  <!-- ── MESSAGE ── -->
+  <div class="message-wrap reveal">
+
+    <div class="inner">
+      <p class="section-label">— Nossas palavras —</p>
+      <span class="quote">"</span>
+      <h2 class="section-title">Alguns momentos mudam tudo.</h2>
+      <p class="section-body">
+        Depois de tantos dias vividos juntos, chegou a hora de celebrar o mais importante de todos.<br /><br />
+        Com imensa alegria, convidamos você a compartilhar conosco o momento em que prometemos amor, cumplicidade e uma vida inteira lado a lado.<br /><br />
+        Sua presença tornará esse dia ainda mais especial.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── DETAILS ── -->
+  <div class="details-wrap reveal">
+    <div class="inner">
+      <p class="section-label">— Detalhes do evento —</p>
+      <h2 class="section-title">O grande dia</h2>
+      <div class="detail-cards">
+        <div class="card">
+          <span class="card-icon">📅</span>
+          <p class="card-label">Data</p>
+          <p class="card-value">06 de setembro<br/>de 2026</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🕕</span>
+          <p class="card-label">Horário</p>
+          <p class="card-value">18:00h<br/>Pontualmente</p>
+        </div>
+        <div class="card full">
+          <span class="card-icon">✨</span>
+          <p class="card-label">Local</p>
+          <p class="card-value">Buffet Tatuapé Hall Prime<br/>R. Antônio de Barros, 644 — Tatuapé, SP</p>
+        </div>
+        <div class="card full">
+          <span class="card-icon">💍</span>
+          <p class="card-label">Programação</p>
+          <p class="card-value">Cerimônia &amp; Recepção no mesmo local</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── COUNTDOWN ── -->
+  <div class="countdown-wrap reveal">
+    <p class="countdown-label">— Faltam —</p>
+    <div class="countdown-grid">
+      <div class="count-unit">
+        <span class="count-num" id="cd-days">—</span>
+        <span class="count-word">Dias</span>
+      </div>
+      <div class="count-unit">
+        <span class="count-num" id="cd-hours">—</span>
+        <span class="count-word">Horas</span>
+      </div>
+      <div class="count-unit">
+        <span class="count-num" id="cd-min">—</span>
+        <span class="count-word">Min</span>
+      </div>
+      <div class="count-unit">
+        <span class="count-num" id="cd-sec">—</span>
+        <span class="count-word">Seg</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAP ── -->
+  <div class="map-section reveal">
+    <div class="inner">
+      <p class="section-label">— Como chegar —</p>
+      <h2 class="section-title">Buffet Tatuapé<br/>Prime Hall</h2>
+      <p class="section-body">
+        R. Antônio de Barros, 644<br/>
+        Tatuapé, São Paulo — SP
+      </p>
+      <a class="map-btn"
+         href="https://www.google.com/maps/place/Buffet+Tatuap%C3%A9+Hall+Prime/@-23.5359546,-46.5637704,17z/data=!3m1!4b1!4m6!3m5!1s0x94ce5e60772ac1eb:0xf67546e74a6e52b2!8m2!3d-23.5359547!4d-46.5588995!16s%2Fg%2F11g_jkqch?entry=ttu&g_ep=EgoyMDI2MDYwMS4wIKXMDSoASAFQAw%3D%3D"
+         target="_blank" rel="noopener">
+        📍 &nbsp;Abrir no Google Maps
+      </a>
+    </div>
+  </div>
+
+  <!-- ── RSVP ── -->
+  <div class="rsvp-wrap reveal">
+    <div class="inner">
+      <p class="section-label">— Confirmação de presença —</p>
+      <h2 class="section-title">Vai estar conosco?</h2>
+      <p class="section-body">
+        Confirme sua presença até <strong style="color:var(--cream)">31 de julho de 2026</strong>.<br/>
+        Sua confirmação nos ajuda a preparar cada detalhe com carinho.
+      </p>
+      <a class="rsvp-btn" href="https://www.deborahguilherme2026.com.br/" target="_blank" rel="noopener">
+        Confirmar presença
+      </a>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <div class="footer-seal">
+      <svg viewBox="72 114 66 66" width="60" height="60"
+           xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <image href="Logo.svg" x="0" y="0" width="210" height="297"/>
+      </svg>
+    </div>
+    <p>Déborah &amp; Guilherme · 06.09.2026</p>
+  </footer>
+
+</div>
+
+<script>
+  // ── Envelope open ──
+  function openEnvelope() {
+    const screen = document.getElementById('envelope-screen');
+    const main   = document.getElementById('main');
+    screen.classList.add('hide');
+    setTimeout(() => main.style.opacity = '1', 400);
+  }
+
+  // ── Countdown ──
+  function updateCountdown() {
+    const target = new Date('2026-09-06T18:00:00');
+    const diff   = target - new Date();
+    if (diff <= 0) {
+      ['cd-days','cd-hours','cd-min','cd-sec'].forEach(id => document.getElementById(id).textContent = '0');
+      return;
+    }
+    document.getElementById('cd-days').textContent  = String(Math.floor(diff / 86400000)).padStart(2,'0');
+    document.getElementById('cd-hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2,'0');
+    document.getElementById('cd-min').textContent   = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
+    document.getElementById('cd-sec').textContent   = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ── Scroll reveal ──
+  const obs = new IntersectionObserver(
+    entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
+    { threshold: 0.1 }
+  );
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
